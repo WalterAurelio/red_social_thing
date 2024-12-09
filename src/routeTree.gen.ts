@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as ProfileImport } from './routes/profile'
+import { Route as NoticiasImport } from './routes/noticias'
 import { Route as IndexImport } from './routes/index'
 import { Route as NoticiasIdImport } from './routes/noticias/$id'
 
@@ -23,6 +24,12 @@ const ProfileRoute = ProfileImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const NoticiasRoute = NoticiasImport.update({
+  id: '/noticias',
+  path: '/noticias',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
@@ -30,9 +37,9 @@ const IndexRoute = IndexImport.update({
 } as any)
 
 const NoticiasIdRoute = NoticiasIdImport.update({
-  id: '/noticias/$id',
-  path: '/noticias/$id',
-  getParentRoute: () => rootRoute,
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => NoticiasRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -46,6 +53,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/noticias': {
+      id: '/noticias'
+      path: '/noticias'
+      fullPath: '/noticias'
+      preLoaderRoute: typeof NoticiasImport
+      parentRoute: typeof rootRoute
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -55,24 +69,38 @@ declare module '@tanstack/react-router' {
     }
     '/noticias/$id': {
       id: '/noticias/$id'
-      path: '/noticias/$id'
+      path: '/$id'
       fullPath: '/noticias/$id'
       preLoaderRoute: typeof NoticiasIdImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof NoticiasImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface NoticiasRouteChildren {
+  NoticiasIdRoute: typeof NoticiasIdRoute
+}
+
+const NoticiasRouteChildren: NoticiasRouteChildren = {
+  NoticiasIdRoute: NoticiasIdRoute,
+}
+
+const NoticiasRouteWithChildren = NoticiasRoute._addFileChildren(
+  NoticiasRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/noticias': typeof NoticiasRouteWithChildren
   '/profile': typeof ProfileRoute
   '/noticias/$id': typeof NoticiasIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/noticias': typeof NoticiasRouteWithChildren
   '/profile': typeof ProfileRoute
   '/noticias/$id': typeof NoticiasIdRoute
 }
@@ -80,29 +108,30 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/noticias': typeof NoticiasRouteWithChildren
   '/profile': typeof ProfileRoute
   '/noticias/$id': typeof NoticiasIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/profile' | '/noticias/$id'
+  fullPaths: '/' | '/noticias' | '/profile' | '/noticias/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/profile' | '/noticias/$id'
-  id: '__root__' | '/' | '/profile' | '/noticias/$id'
+  to: '/' | '/noticias' | '/profile' | '/noticias/$id'
+  id: '__root__' | '/' | '/noticias' | '/profile' | '/noticias/$id'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  NoticiasRoute: typeof NoticiasRouteWithChildren
   ProfileRoute: typeof ProfileRoute
-  NoticiasIdRoute: typeof NoticiasIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  NoticiasRoute: NoticiasRouteWithChildren,
   ProfileRoute: ProfileRoute,
-  NoticiasIdRoute: NoticiasIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -116,18 +145,25 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/profile",
-        "/noticias/$id"
+        "/noticias",
+        "/profile"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
+    "/noticias": {
+      "filePath": "noticias.tsx",
+      "children": [
+        "/noticias/$id"
+      ]
+    },
     "/profile": {
       "filePath": "profile.tsx"
     },
     "/noticias/$id": {
-      "filePath": "noticias/$id.tsx"
+      "filePath": "noticias/$id.tsx",
+      "parent": "/noticias"
     }
   }
 }

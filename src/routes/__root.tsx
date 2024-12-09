@@ -25,6 +25,11 @@ function RootComponent() {
               {({ isActive }) => <>Perfil {isActive && 'Activo'}</>}
             </Link>
           </li>
+          <li>
+            <Link to='/noticias' activeProps={activeProps}>
+              Noticias
+            </Link>
+          </li>
           {/* <li>
             <Link to='/noticias/$id' activeProps={activeProps}>
               {({ isActive }) => <>{ isActive ? 'Noticias Activo' : 'Noticias' }</>}
