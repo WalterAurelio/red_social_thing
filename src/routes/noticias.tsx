@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { getNoticias } from '../api/noticias';
 import { noticia } from '../api/noticias'
 
@@ -13,13 +13,21 @@ function Noticias() {
   return (
     <div>
       {
-        noticias.map(noticia => 
+        noticias.map(noticia =>
           <div key={noticia._id}>
             <h3>{noticia.titulo}</h3>
-            <p>{noticia.descripcion}</p>
+            <Link
+              to='/noticias/$id'
+              params={{
+                id: noticia._id!
+              }}
+            >
+              Leer noticias
+            </Link>
           </div>
         )
       }
+      <Outlet />
     </div>
   )
 }

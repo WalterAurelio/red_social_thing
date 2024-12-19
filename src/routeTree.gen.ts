@@ -11,12 +11,22 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as SearchImport } from './routes/search'
 import { Route as ProfileImport } from './routes/profile'
 import { Route as NoticiasImport } from './routes/noticias'
+import { Route as LoginImport } from './routes/login'
+import { Route as AuthenticatedImport } from './routes/_authenticated'
 import { Route as IndexImport } from './routes/index'
 import { Route as NoticiasIdImport } from './routes/noticias/$id'
+import { Route as AuthenticatedDashboardImport } from './routes/_authenticated/dashboard'
 
 // Create/Update Routes
+
+const SearchRoute = SearchImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const ProfileRoute = ProfileImport.update({
   id: '/profile',
@@ -27,6 +37,17 @@ const ProfileRoute = ProfileImport.update({
 const NoticiasRoute = NoticiasImport.update({
   id: '/noticias',
   path: '/noticias',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LoginRoute = LoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthenticatedRoute = AuthenticatedImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -42,6 +63,12 @@ const NoticiasIdRoute = NoticiasIdImport.update({
   getParentRoute: () => NoticiasRoute,
 } as any)
 
+const AuthenticatedDashboardRoute = AuthenticatedDashboardImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -51,6 +78,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedImport
+      parentRoute: typeof rootRoute
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
     '/noticias': {
@@ -67,6 +108,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileImport
       parentRoute: typeof rootRoute
     }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchImport
+      parentRoute: typeof rootRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardImport
+      parentRoute: typeof AuthenticatedImport
+    }
     '/noticias/$id': {
       id: '/noticias/$id'
       path: '/$id'
@@ -78,6 +133,18 @@ declare module '@tanstack/react-router' {
 }
 
 // Create and export the route tree
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
 
 interface NoticiasRouteChildren {
   NoticiasIdRoute: typeof NoticiasIdRoute
@@ -93,45 +160,88 @@ const NoticiasRouteWithChildren = NoticiasRoute._addFileChildren(
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '': typeof AuthenticatedRouteWithChildren
+  '/login': typeof LoginRoute
   '/noticias': typeof NoticiasRouteWithChildren
   '/profile': typeof ProfileRoute
+  '/search': typeof SearchRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/noticias/$id': typeof NoticiasIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '': typeof AuthenticatedRouteWithChildren
+  '/login': typeof LoginRoute
   '/noticias': typeof NoticiasRouteWithChildren
   '/profile': typeof ProfileRoute
+  '/search': typeof SearchRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/noticias/$id': typeof NoticiasIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/login': typeof LoginRoute
   '/noticias': typeof NoticiasRouteWithChildren
   '/profile': typeof ProfileRoute
+  '/search': typeof SearchRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/noticias/$id': typeof NoticiasIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/noticias' | '/profile' | '/noticias/$id'
+  fullPaths:
+    | '/'
+    | ''
+    | '/login'
+    | '/noticias'
+    | '/profile'
+    | '/search'
+    | '/dashboard'
+    | '/noticias/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/noticias' | '/profile' | '/noticias/$id'
-  id: '__root__' | '/' | '/noticias' | '/profile' | '/noticias/$id'
+  to:
+    | '/'
+    | ''
+    | '/login'
+    | '/noticias'
+    | '/profile'
+    | '/search'
+    | '/dashboard'
+    | '/noticias/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/login'
+    | '/noticias'
+    | '/profile'
+    | '/search'
+    | '/_authenticated/dashboard'
+    | '/noticias/$id'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  LoginRoute: typeof LoginRoute
   NoticiasRoute: typeof NoticiasRouteWithChildren
   ProfileRoute: typeof ProfileRoute
+  SearchRoute: typeof SearchRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  LoginRoute: LoginRoute,
   NoticiasRoute: NoticiasRouteWithChildren,
   ProfileRoute: ProfileRoute,
+  SearchRoute: SearchRoute,
 }
 
 export const routeTree = rootRoute
@@ -145,12 +255,24 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/_authenticated",
+        "/login",
         "/noticias",
-        "/profile"
+        "/profile",
+        "/search"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/_authenticated": {
+      "filePath": "_authenticated.tsx",
+      "children": [
+        "/_authenticated/dashboard"
+      ]
+    },
+    "/login": {
+      "filePath": "login.tsx"
     },
     "/noticias": {
       "filePath": "noticias.tsx",
@@ -160,6 +282,13 @@ export const routeTree = rootRoute
     },
     "/profile": {
       "filePath": "profile.tsx"
+    },
+    "/search": {
+      "filePath": "search.tsx"
+    },
+    "/_authenticated/dashboard": {
+      "filePath": "_authenticated/dashboard.tsx",
+      "parent": "/_authenticated"
     },
     "/noticias/$id": {
       "filePath": "noticias/$id.tsx",

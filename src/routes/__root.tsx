@@ -1,7 +1,13 @@
 import * as React from 'react'
-import { Link, Outlet, createRootRoute } from '@tanstack/react-router'
+import { Link, Outlet, createRootRouteWithContext } from '@tanstack/react-router'
+import { AuthContext } from '../hooks/useAuth';
+import SearchBar from '../components/SearchBar';
 
-export const Route = createRootRoute({
+type RouterContext = {
+  authentication: AuthContext
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
 });
 
@@ -15,6 +21,7 @@ function RootComponent() {
   return (
     <React.Fragment>
       <h1>Red Social Thing</h1>
+      <SearchBar />
       <nav>
         <ul>
           <li>
@@ -30,11 +37,16 @@ function RootComponent() {
               Noticias
             </Link>
           </li>
-          {/* <li>
-            <Link to='/noticias/$id' activeProps={activeProps}>
-              {({ isActive }) => <>{ isActive ? 'Noticias Activo' : 'Noticias' }</>}
+          <li>
+            <Link to='/login' activeProps={activeProps}>
+              Login
             </Link>
-          </li> */}
+          </li>
+          <li>
+            <Link to='/dashboard' activeProps={activeProps}>
+              Dashboard
+            </Link>
+          </li>
         </ul>
       </nav>
       <Outlet />
